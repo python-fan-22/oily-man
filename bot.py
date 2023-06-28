@@ -3,6 +3,7 @@ import random
 from discord import app_commands
 from discord.ext import commands
 import randfacts
+import json
 
 
 def handle_response(message) -> str:
@@ -26,7 +27,9 @@ async def send_message(message, response):
 
 
 def run_bot():
-    token = "MTEwMzI2NDM4OTU0MjQ2MTQ3MA.GvQQbi.EdM-XNeM8Os7hWZqF9ZBxQj1TFkCv9eYhwOX78"
+    with open("token.json") as file:
+        data = json.load(file)
+        token = data["token"]
 
     client = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 
@@ -74,14 +77,9 @@ def run_bot():
         await interaction.response.send_message(f"We live in a society where... dave plays minecraft in class"
                                                 , ephemeral=True)
 
-    @client.tree.command(name='embed')
-    @app_commands.describe(option="decide what you want to do with your embed")
-    @app_commands.choices(option=[
-        app_commands.Choice(name="Option 1", value="1"),
-        app_commands.Choice(name="Option 2", value="2")
-    ])
-    async def embed:
-
-
+    @client.tree.command(name="embed", description="embed a message")
+    async def embed(interaction: discord.Interaction, embed_title: str, embed_description: str):
+        embed_message = discord.Embed(title=embed_title, description=embed_description)
+        await interaction.response.send_message(embed=embed_message)
 
     client.run(token)
