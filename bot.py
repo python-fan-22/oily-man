@@ -1,9 +1,11 @@
 import discord
 import random
+import requests
 from discord import app_commands
 from discord.ext import commands
 import randfacts
 import json
+
 
 
 def handle_response(message) -> str:
@@ -82,4 +84,24 @@ def run_bot():
         embed_message = discord.Embed(title=embed_title, description=embed_description)
         await interaction.response.send_message(embed=embed_message)
 
+    @client.tree.command(name="lowest-bin", description="find the lowest BIN price of an item on the ah")
+    async def lowest_bin(interaction: discord.Interaction, item_tag: str):
+        link = f"https://sky.coflnet.com/api/auctions/tag/{item_tag}/active/bin"
+        request = requests.get(link)
+        api_data = request.json()
+
+        for data in api_data:
+            price = data.get('startingBid')
+            is_bin = data.get('bin')
+
+        if is_bin:
+            await interaction.response.send_message(
+                f"{interaction.user.mention}, the lowest bin I found for that item is"
+                f" ${price}", ephemeral=True)
+        else:
+            await interaction.response.send_message(
+                f"{interaction.user.mention}, the lowest bin I found for that item is"
+                f"null", ephemeral=True)
+
     client.run(token)
+ 
